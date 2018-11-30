@@ -1,5 +1,6 @@
-﻿using FriendOrganizer.UI.Data;
+﻿using Autofac;
 using FriendOrganizer.UI.Startup;
+using System;
 using System.Windows;
 
 namespace FriendOrganizer.UI
@@ -19,18 +20,26 @@ namespace FriendOrganizer.UI
             //
             //var mainWindow = new MainWindow(
             //    new MainViewModel(
-            //        new FriendDataService()));
+            //        new FriendRepository()));
             //mainWindow.Show();
 
             var bootstrapper = new Bootstrapper();
             var container = bootstrapper.Bootstrap();
 
-            var mainWindow
+            //goes to the MainWindowContructor to construct a MainView Model, then goes to the MainView Model
+            //constuctor and sees that it has to construct an IFriendDataService and because of the info provided
+            //has to set up a FriendRepository instance
+            var mainWindow = container.Resolve<MainWindow>();
+            mainWindow.Show();
 
+        }
 
-
-
-
+        private void Application_DispatcherUnhandledException(object sender, 
+            System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("Unexpected error occurred. Please inform the admin."
+                + Environment.NewLine + e.Exception.Message, "Unexpected error");
+            e.Handled = true;
         }
     }
 }

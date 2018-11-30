@@ -5,6 +5,7 @@ namespace FriendOrganizer.UI
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
+    /// The views constructor takes a ViewModel
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -27,10 +28,12 @@ namespace FriendOrganizer.UI
             Loaded += MainWindow_Loaded;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+       // private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             //load the friends
-            _viewModel.Load();
+            // _viewModel.Load();
+            await _viewModel.LoadAsync();
 
         }
     }
