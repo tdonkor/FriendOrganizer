@@ -1,9 +1,11 @@
 ﻿
 using FriendOrganizer.UI.Event;
 using FriendOrganizer.UI.View.Services;
+using Prism.Commands;
 using Prism.Events;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace FriendOrganizer.UI.ViewModel
 {
@@ -20,11 +22,33 @@ namespace FriendOrganizer.UI.ViewModel
         //private Friend _selectedFriend;
 
         //allows us to create a new friend view model for every friend event
-     
+
+        public MainViewModel(INavigationViewModel navigationVewModel,
+            Func<IFriendDetailViewModel> friendDetailViewModelCreator,
+            IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
+        {
+            _eventAggregator = eventAggregator;
+            _friendDetailViewModelCreator = friendDetailViewModelCreator;
+            _messageDialogService = messageDialogService;
+
+            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Subscribe(OnOpenFriendDetailView);
+            _eventAggregator.GetEvent<AfterFriendDeletedEvent>().Subscribe(AfterFriendDeleted);
+
+            CreateNewFriendCommand = new DelegateCommand(OnCreateNewFriendExecute);
+            NavigationViewModel = navigationVewModel;
+            //Friends = new ObservableCollection<Friend>();
+            //_friendDataService = friendDataService;
+        }
+
+      
+
         private IEventAggregator _eventAggregator;
         private Func<IFriendDetailViewModel> _friendDetailViewModelCreator;
         private IMessageDialogService _messageDialogService;
         private IFriendDetailViewModel _friendDetailViewModel;
+
+        public ICommand CreateNewFriendCommand { get; }
 
         public INavigationViewModel NavigationViewModel { get; }
       
@@ -47,22 +71,7 @@ namespace FriendOrganizer.UI.ViewModel
         // it implements INotifyCollectionChanged which notifies the databinding about changes
         // public MainViewModel(IFriendDataService friendDataService)
 
-        public MainViewModel(INavigationViewModel navigationVewModel,
-            Func<IFriendDetailViewModel> friendDetailViewModelCreator,
-            IEventAggregator eventAggregator,
-            IMessageDialogService messageDialogService)
-        {
-            _eventAggregator = eventAggregator;
-            _friendDetailViewModelCreator = friendDetailViewModelCreator;
-            _messageDialogService = messageDialogService;
-
-            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Subscribe(OnOpenFriendDetailView);
-
-            NavigationViewModel = navigationVewModel;
-
-            //Friends = new ObservableCollection<Friend>();
-            //_friendDataService = friendDataService;
-        }
+        
 
 
         /// <summary>
@@ -116,13 +125,15 @@ namespace FriendOrganizer.UI.ViewModel
 
         //
         /// <summary>
-        ///  A friend in selected in the Navigation the  is notified
+        ///  A friend in selected in the Navigation the is notified
         ///  loads the Id of the Friend 
+        ///  Make it nullable 
         /// </summary>
         /// <param name="friendId"></param>
-        private async void OnOpenFriendDetailView(int friendId)
+        private async void OnOpenFriendDetailView(int? friendId)
         {
-            //blocks the Navigatin if the user has made changes to a friend
+            //blocks the Navigatin if the user has made changes to a friend need to do the same for a new friend
+            //for a new friend create a new view Model and pass in a null value to the loadAsync method
             if(FriendDetailViewModel!=null && FriendDetailViewModel.HasChanges)
             {
                 var result = _messageDialogService.ShowOkCancelDialog("You've made changes. Navigate away?", "Question");
@@ -134,6 +145,16 @@ namespace FriendOrganizer.UI.ViewModel
             }
             FriendDetailViewModel = _friendDetailViewModelCreator();
             await FriendDetailViewModel.LoadAsync(friendId);
+        }
+
+        private void OnCreateNewFriendExecute()
+        {
+            OnOpenFriendDetailView(null);
+        }
+
+        private void AfterFriendDeleted(int friendId)
+        {
+            FriendDetailViewModel = null;
         }
 
     }

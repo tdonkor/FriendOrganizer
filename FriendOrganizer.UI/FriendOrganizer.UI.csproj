@@ -70,6 +70,7 @@
     </ApplicationDefinition>
     <Compile Include="Data\Lookups\IFriendLookUpDataService.cs" />
     <Compile Include="Data\Lookups\LookUpDataService.cs" />
+    <Compile Include="Event\AfterFriendDeletedEvent.cs" />
     <Compile Include="Event\AfterFriendSavedEvent.cs" />
     <Compile Include="Event\OpenFriendDetailViewEvent.cs" />
     <Compile Include="Startup\Bootstrapper.cs" />

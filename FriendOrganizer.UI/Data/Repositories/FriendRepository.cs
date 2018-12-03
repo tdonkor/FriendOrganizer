@@ -22,6 +22,11 @@ namespace FriendOrganizer.UI.Data.Repositories
             _context = context;
         }
 
+        public void Add(Friend friend)
+        {
+            _context.Friends.Add(friend);
+        }
+
         //public IEnumerable<Friend> GetAll()
         //Make it Async
         //public async Task<List<Friend>> GetAllAsync()
@@ -55,6 +60,11 @@ namespace FriendOrganizer.UI.Data.Repositories
         public bool HasChanges()
         {
             return _context.ChangeTracker.HasChanges();
+        }
+
+        public void Remove(Friend model)
+        {
+            _context.Friends.Remove(model);
         }
 
         /// <summary>

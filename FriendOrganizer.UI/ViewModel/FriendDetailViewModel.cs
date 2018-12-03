@@ -1,6 +1,7 @@
 ﻿using FriendOrganizer.Model;
 using FriendOrganizer.UI.Data.Repositories;
 using FriendOrganizer.UI.Event;
+using FriendOrganizer.UI.View.Services;
 using FriendOrganizer.UI.Wrapper;
 using Prism.Commands;
 using Prism.Events;
@@ -17,7 +18,42 @@ namespace FriendOrganizer.UI.ViewModel
     {
         private IFriendRepository _friendRepository;
         private IEventAggregator _eventAggregator;
+        private IMessageDialogService _messageDialogService;
         private bool _hasChanges;
+
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="friendRepository"></param>
+        /// <param name="eventAggregator"></param>
+        public FriendDetailViewModel(IFriendRepository friendRepository, IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService)
+        {
+            _friendRepository = friendRepository;
+            _eventAggregator = eventAggregator;
+            _messageDialogService = messageDialogService;
+
+            //subscribe to the OpenFriendDetailViewEvent in the constructor
+            // _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Subscribe(OnOpenFriendDetailView);
+
+            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
+            DeleteCommand = new DelegateCommand(OnDeleteExecute);
+        }
+
+        private async void OnDeleteExecute()
+        {
+            var result = _messageDialogService.ShowOkCancelDialog($"Do you really want to delete the friend {Friend.FirstName} {Friend.LastName}?", 
+               "Question");
+            if(result == MessageDialogResult.OK)
+            {
+                _friendRepository.Remove(Friend.Model);
+                await _friendRepository.SaveAsync();
+                _eventAggregator.GetEvent<AfterFriendDeletedEvent>().Publish(Friend.Id);
+
+            }
+            
+        }
 
         //was a Friend now a FriendWrapper
         private FriendWrapper _friend;
@@ -31,8 +67,6 @@ namespace FriendOrganizer.UI.ViewModel
                 OnPropertyChanged();
             }
         }
-
-    
 
         public bool HasChanges
         {
@@ -52,22 +86,9 @@ namespace FriendOrganizer.UI.ViewModel
         //don't need the setter as we initialise it directly in the constructor
         // of the friendDetailView Model
         public ICommand SaveCommand{ get; }
+        public ICommand DeleteCommand { get; }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="friendRepository"></param>
-        /// <param name="eventAggregator"></param>
-        public FriendDetailViewModel(IFriendRepository friendRepository, IEventAggregator eventAggregator)
-        {
-            _friendRepository = friendRepository;
-            _eventAggregator = eventAggregator;
-
-            //subscribe to the OpenFriendDetailViewEvent in the constructor
-           // _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Subscribe(OnOpenFriendDetailView);
-
-            SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
-        }
+      
 
         private bool OnSaveCanExecute()
         {
@@ -88,10 +109,7 @@ namespace FriendOrganizer.UI.ViewModel
                 });
 
         }
-
-
-
-        
+       
         /// <summary>
         ///  A friend in selected in the Navigation the  is notified
         ///  loads the Id of the Friend 
@@ -109,9 +127,12 @@ namespace FriendOrganizer.UI.ViewModel
         /// </summary>
         /// <param name="friendId"></param>
         /// <returns></returns>
-        public async Task LoadAsync(int friendId)
+        public async Task LoadAsync(int? friendId)
         {
-            var friend = await _friendRepository.GetByIdAsync(friendId);
+            var friend = friendId.HasValue
+                ? await _friendRepository.GetByIdAsync(friendId.Value)
+                : CreateNewFriend();
+                                      
 
             //use a  FriendWrapper
             Friend = new FriendWrapper(friend);
@@ -130,6 +151,18 @@ namespace FriendOrganizer.UI.ViewModel
             };
            
             ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            if(Friend.Id == 0)
+            {
+                //Little trick to trigger the validation
+                Friend.FirstName = "";
+            }
+        }
+
+        private Friend CreateNewFriend()
+        {
+            var friend = new Friend();
+            _friendRepository.Add(friend);
+            return friend;
         }
     }
 }

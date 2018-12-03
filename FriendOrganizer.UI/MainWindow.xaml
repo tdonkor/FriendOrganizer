@@ -3,9 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FriendOrganizer.UI"
         xmlns:view="clr-namespace:FriendOrganizer.UI.View"
+        xmlns:viewModel="clr-namespace:FriendOrganizer.UI.ViewModel"
         mc:Ignorable="d"
         Title="FriendOrganiser" Height="350" Width="525" FontSize="20">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModel:FriendDetailViewModel}">
+            <view:FriendDetailView/>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
         <!-- grid 0 - contains Listview 
         Bind both to the Friends and Selected Friends
@@ -13,36 +20,24 @@
         use 2-way binding for selected Friends so it is
         wriiten back into the viewModel when we change the item in the list view
         DisplayMemberPath allows us to select the property we wish to display-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <view:NavigationView DataContext="{Binding NavigationViewModel}" />
-        <view:FriendDetailView Grid.Column="1" DataContext ="{Binding FriendDetailViewModel}" />
-        <!--<ListView ItemsSource="{Binding Friends }"
-                  SelectedItem="{Binding SelectedFriend, Mode=TwoWay}"
-                  DisplayMemberPath="FirstName" />
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Label Content="Firstname" Margin="10 10 10 0" />
-            <TextBox Grid.Row="1" Text="{Binding SelectedFriend.FirstName,
-                Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
-
-            <Label Grid.Row="2" Content="Lastname" Margin="10 0" />
-            <TextBox Grid.Row="3" Text="{Binding SelectedFriend.LastName,
-                Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
-
-            <Label Grid.Row="4" Content="Email" Margin="10 0" />
-            <TextBox Grid.Row="5" Text="{Binding SelectedFriend.Email,
-                Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 0 10 10"/>
-        </Grid> -->
+        <Menu Grid.ColumnSpan="2" FontSize="20">
+            <MenuItem Header="Create">
+                <MenuItem Header="New Friend" Command="{Binding CreateNewFriendCommand}" />
+            </MenuItem>
+        </Menu>
+        <view:NavigationView Grid.Row="1" 
+                             DataContext="{Binding NavigationViewModel}" />
+        <ContentControl Grid.Row="1" 
+                               Grid.Column="1"
+                               Content ="{Binding FriendDetailViewModel}" />
+      
     </Grid>
 </Window>
