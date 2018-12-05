@@ -21,6 +21,7 @@ namespace FriendOrganizer.DataAccess
         // access the friend class to load and save friends
         public DbSet<Friend> Friends { get; set; }
         public DbSet<ProgrammingLanguage> ProgrammingLanguages { get; set; }
+        public DbSet<FriendPhoneNumber> FriendPhoneNumbers { get; set; }
 
         //entity framework will pluralise the table names by default
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

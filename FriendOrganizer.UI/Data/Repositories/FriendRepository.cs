@@ -1,9 +1,6 @@
 ﻿using FriendOrganizer.DataAccess;
 using FriendOrganizer.Model;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FriendOrganizer.UI.Data.Repositories
@@ -33,28 +30,11 @@ namespace FriendOrganizer.UI.Data.Repositories
         //we now just want t return a single friend by ID
         public async Task<Friend> GetByIdAsync(int friendId)
         {
-            //TODO Load data from a real database
-            //yield return new Friend { FirstName = "Thomas", LastName = "Huber" };
-            //yield return new Friend { FirstName = "Andreas", LastName = "Boehler" };
-            //yield return new Friend { FirstName = "Julia", LastName = "Huber" };
-            //yield return new Friend { FirstName = "Chrisi", LastName = "Egin" };
-
-            //need to add entityFramework to reference
-            //replace using (var ctx = new FriendOrganizerDbContext())
-
-            // the context is created and grabs the friend with the specic
-            // friend ID from the Database and the sected friend is displayed in the detailed view
-
-            //using (var ctx = _contextCreator())
-            //{
-            //    //return ctx.Friends.AsNoTracking().ToList();
-            //    //return await ctx.Friends.AsNoTracking().ToListAsync();
-            //    return await ctx.Friends.AsNoTracking().SingleAsync(f => f.Id == friendId);
-            //}
-
-
+            
             //we want the context to track the entities it has loaded so get rid of AsNoTracking
-            return await _context.Friends.SingleAsync(f => f.Id == friendId);
+            return await _context.Friends
+                .Include(f=> f.PhoneNumbers)
+                .SingleAsync(f => f.Id == friendId);
         }
 
         public bool HasChanges()
@@ -65,6 +45,11 @@ namespace FriendOrganizer.UI.Data.Repositories
         public void Remove(Friend model)
         {
             _context.Friends.Remove(model);
+        }
+
+        public void RemovePhoneNumber(FriendPhoneNumber model)
+        {
+            _context.FriendPhoneNumbers.Remove(model);
         }
 
         /// <summary>
