@@ -15,39 +15,21 @@ namespace FriendOrganizer.UI.ViewModel
         private IEventAggregator _eventAggregator;
 
         //bound by the navigation view to display the friends
-        //Was previously LookupItem
         public ObservableCollection<NavigationItemViewModel> Friends { get; }
 
-        // Now not needed
-        //Was previously LookupItem
-        //private NavigationItemViewModel _selectedFriend;
-
-        ////Was previously LookupItem
-        //public NavigationItemViewModel SelectedFriend
-        //{
-        //    get { return _selectedFriend; }
-        //    set { _selectedFriend = value;
-        //        OnPropertyChanged();
-        //        if (_selectedFriend!= null)
-        //        {
-        //            //publish the event when a friend is selected
-        //            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>().Publish(_selectedFriend.Id);
-        //        }
-        //    }
-        //}
-
-
+       
         public NavigationViewModel(IFriendLookUpDataService friendLookUpService, IEventAggregator eventAggregator)
         {
             _friendLookUpService = friendLookUpService;
             _eventAggregator = eventAggregator;
             //replace the lookup item
             Friends = new ObservableCollection<NavigationItemViewModel>();
-            _eventAggregator.GetEvent<AfterFriendSavedEvent>().Subscribe(AfterFriendSaved);
-            _eventAggregator.GetEvent<AfterFriendDeletedEvent>().Subscribe(AfterFriendDeleted);
+            _eventAggregator.GetEvent<AfterDetailSavedEvent>().Subscribe(AfterDetailSaved);
+            _eventAggregator.GetEvent<AfterDetailDeletedEvent>().Subscribe(AfterDetailDeleted);
         }
 
        
+
         public async Task LoadAsync()
         {
             // friendLookUpService returns a LookUp previously
@@ -59,32 +41,46 @@ namespace FriendOrganizer.UI.ViewModel
             //was previously lookup item
             foreach (var item in lookUp)
             {
-                Friends.Add(new NavigationItemViewModel(item.Id, item.DisplayMember, _eventAggregator));
+                Friends.Add(new NavigationItemViewModel(item.Id, item.DisplayMember, 
+                    _eventAggregator, nameof(FriendDetailViewModel)));
             }
         }
 
-        private void AfterFriendDeleted(int friendId)
+        private void AfterDetailDeleted(AfterDetailDeletedEventArgs args)
         {
-            var friend = Friends.SingleOrDefault(f => f.Id == friendId);
-            if(friend!= null)
+            switch (args.ViewModelName)
             {
-                Friends.Remove(friend);
+                case nameof(FriendDetailViewModel):
+
+                    var friend = Friends.SingleOrDefault(f => f.Id == args.Id);
+                    if (friend != null)
+                    {
+                        Friends.Remove(friend);
+                    }
+                    break;
             }
         }
 
-        private void AfterFriendSaved(AfterFriendSavedEventArgs obj)
+        private void AfterDetailSaved(AfterDetailSavedEventArgs obj)
         {
-            var lookupItem = Friends.SingleOrDefault(l => l.Id == obj.Id);
-            if (lookupItem == null)
+            switch (obj.ViewModelName)
             {
-                Friends.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember, _eventAggregator));
-            }
-            else
-            {
-                lookupItem.DisplayMember = obj.DisplayMember;
-            }
+                case nameof(FriendDetailViewModel):
 
+                    var lookupItem = Friends.SingleOrDefault(l => l.Id == obj.Id);
+                    if (lookupItem == null)
+                    {
+                        Friends.Add(new NavigationItemViewModel(obj.Id, obj.DisplayMember,
+                        _eventAggregator, nameof(FriendDetailViewModel)));
+                    }
+                    else
+                    {
+                        lookupItem.DisplayMember = obj.DisplayMember;
+                    }
+                    break;
+            }
         }
+
 
     }
 }
