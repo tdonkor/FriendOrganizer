@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace FriendOrganizer.UI.Data.Lookups
 {
-    public interface IFriendLookUpDataService
+    public interface IMeetingLookUpDataService
     {
-        Task<IEnumerable<LookupItem>> GetFriendLookUpAsync();
+        Task<List<LookupItem>> GetMeetingLookUpAsync();
     }
 }

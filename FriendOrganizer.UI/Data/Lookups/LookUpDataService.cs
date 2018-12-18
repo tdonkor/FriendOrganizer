@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace FriendOrganizer.UI.Data.Lookups
 {
-    public class LookUpDataService : IFriendLookUpDataService, IProgrammingLanguageLookUpDataService
+    public class LookUpDataService : IFriendLookUpDataService, IProgrammingLanguageLookUpDataService,
+        IMeetingLookUpDataService
     {
         private Func<FriendOrganizerDbContext> _contextCreator;
 
@@ -55,5 +56,22 @@ namespace FriendOrganizer.UI.Data.Lookups
                     .ToListAsync();
             }
         }
+
+        public async Task<List<LookupItem>> GetMeetingLookUpAsync()
+        {
+            using (var ctx = _contextCreator())
+            {
+                return await ctx.Meetings.AsNoTracking()
+                    .Select(m =>
+                    new LookupItem
+                    {
+                        Id = m.Id,
+                        DisplayMember = m.Title
+                    })
+                    .ToListAsync();
+            }
+        }
+
+      
     }
 }

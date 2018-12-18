@@ -22,6 +22,7 @@ namespace FriendOrganizer.DataAccess
         public DbSet<Friend> Friends { get; set; }
         public DbSet<ProgrammingLanguage> ProgrammingLanguages { get; set; }
         public DbSet<FriendPhoneNumber> FriendPhoneNumbers { get; set; }
+        public DbSet<Meeting> Meetings { get; set; }
 
         //entity framework will pluralise the table names by default
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -30,27 +31,7 @@ namespace FriendOrganizer.DataAccess
             //remove a default convention
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
 
-            //fluent API to Add Constraints - move to its own class
-            //modelBuilder.Entity<Friend>()
-            //    .Property(f => f.FirstName)
-            //    .IsRequired()
-            //    .HasMaxLength(50);
-
-            //modelBuilder.Configurations.Add(new FriendConfiguration());
         }
 
     }
-    /// <summary>
-    ///  //fluent API to Add Constraints in seperate class - use data annotations instead in your model calss
-    /// </summary>
-    //public class FriendConfiguration : EntityTypeConfiguration<Friend>
-    //{
-    //    public FriendConfiguration()
-    //    {
-    //         Property(f => f.FirstName)
-    //            .IsRequired()
-    //            .HasMaxLength(50);
-    //    }
-          
-    //}
 }

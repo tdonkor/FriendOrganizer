@@ -1,4 +1,5 @@
 ﻿
+using Autofac.Features.Indexed;
 using FriendOrganizer.UI.Event;
 using FriendOrganizer.UI.View.Services;
 using Prism.Commands;
@@ -19,17 +20,26 @@ namespace FriendOrganizer.UI.ViewModel
     {
 
         private IEventAggregator _eventAggregator;
-        private Func<IFriendDetailViewModel> _friendDetailViewModelCreator;
-        private IMessageDialogService _messageDialogService;
         private IDetailViewModel _detailViewModel;
+        private IMessageDialogService _messageDialogService;
+        private IIndex<string, IDetailViewModel> _detailViewModelCreator;
+
+        //private readonly IIndex<string, IDetailViewModel> _detailViewModelCreator;
+       // private Func<IFriendDetailViewModel> _friendDetailViewModelCreator;
+        //private Func<IMeetingDetailViewModel> _meetingDetailViewModelCreator;
+
 
         public MainViewModel(INavigationViewModel navigationVewModel,
-            Func<IFriendDetailViewModel> friendDetailViewModelCreator,
+            //Func<IFriendDetailViewModel> friendDetailViewModelCreator,
+            //Func<IMeetingDetailViewModel> meetingDetailViewModelCreator,
+            IIndex<string,IDetailViewModel> detailViewModelCreator,
             IEventAggregator eventAggregator,
             IMessageDialogService messageDialogService)
         {
             _eventAggregator = eventAggregator;
-            _friendDetailViewModelCreator = friendDetailViewModelCreator;
+            _detailViewModelCreator = detailViewModelCreator;
+            //_friendDetailViewModelCreator = friendDetailViewModelCreator;
+            //_meetingDetailViewModelCreator = meetingDetailViewModelCreator;
             _messageDialogService = messageDialogService;
 
             _eventAggregator.GetEvent<OpenDetailViewEvent>().Subscribe(OnOpenDetailView);
@@ -37,16 +47,10 @@ namespace FriendOrganizer.UI.ViewModel
 
             CreateNewDetailCommand = new DelegateCommand<Type>(OnCreateNewDetailExecute);
             NavigationViewModel = navigationVewModel;
-        
         }
 
-     
-
         public ICommand CreateNewDetailCommand { get; }
-
         public INavigationViewModel NavigationViewModel { get; }
-      
-
         public IDetailViewModel DetailViewModel
         {
             get { return _detailViewModel; }
@@ -77,9 +81,7 @@ namespace FriendOrganizer.UI.ViewModel
 
         //
         /// <summary>
-        ///  A friend in selected in the Navigation the is notified
-        ///  loads the Id of the Friend 
-        ///  Make it nullable 
+        /// Where we create the detail ViewModel
         /// </summary>
         /// <param name="friendId"></param>
         private async void OnOpenDetailView(OpenDetailViewEventArgs args)
@@ -94,16 +96,24 @@ namespace FriendOrganizer.UI.ViewModel
                 {
                     return;
                 }
+               
             }
-            DetailViewModel = _friendDetailViewModelCreator();
 
-            switch(args.ViewModelName)
-            {
-                case nameof(FriendDetailViewModel):
-                DetailViewModel = _friendDetailViewModelCreator();
-                break;
-            }
+            DetailViewModel = _detailViewModelCreator[args.ViewModelName];
             await DetailViewModel.LoadAsync(args.Id);
+
+            //switch(args.ViewModelName)
+            //{
+            //    case nameof(FriendDetailViewModel):
+            //    DetailViewModel = _friendDetailViewModelCreator();
+            //    break;
+            //    case nameof(MeetingDetailViewModel):
+            //        DetailViewModel = _meetingDetailViewModelCreator();
+            //        break;
+            //    default:
+            //        throw new Exception($"ViewModel { args.ViewModelName} not mapped");
+
+         
         }
 
         private void OnCreateNewDetailExecute(Type viewModelType)
