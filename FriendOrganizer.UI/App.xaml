@@ -6,6 +6,7 @@
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
             <!--StartupUri="MainWindow.xaml">  Remove  use startup event-->
     <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
         <Style TargetType="TextBox">
             <Setter Property="Validation.ErrorTemplate">
                 <Setter.Value>
