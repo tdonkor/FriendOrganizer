@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -202,12 +203,13 @@ namespace FriendOrganizer.UI.ViewModel
         }
         protected override async void OnSaveExecute()
         {
-         
-            await _friendRepository.SaveAsync();
-            HasChanges = _friendRepository.HasChanges();
-            Id = Friend.Id;
-            RaiseDetailSavedEvent(Friend.Id, $"{Friend.FirstName} {Friend.LastName}");
-
+            await SaveWithOptimisticConcurrencyAsync(_friendRepository.SaveAsync,
+                () =>
+                {
+                    HasChanges = _friendRepository.HasChanges();
+                    Id = Friend.Id;
+                    RaiseDetailSavedEvent(Friend.Id, $"{Friend.FirstName} {Friend.LastName}");
+                });
         }
        
        
