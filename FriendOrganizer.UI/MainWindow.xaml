@@ -1,8 +1,9 @@
-﻿<Window x:Class="FriendOrganizer.UI.MainWindow"
+﻿<Controls:MetroWindow x:Class="FriendOrganizer.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:FriendOrganizer.UI"
         xmlns:view="clr-namespace:FriendOrganizer.UI.View"
         xmlns:viewModel="clr-namespace:FriendOrganizer.UI.ViewModel"
@@ -53,6 +54,14 @@
         <TabControl Grid.Row="1"  Grid.Column="1"
                                ItemsSource ="{Binding DetailViewModels}"
                                SelectedItem="{Binding SelectedDetailViewModel, Mode=TwoWay}">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="TabItem"
+                        BasedOn="{StaticResource {x:Type TabItem}}">
+                    <Setter Property="Background" Value="#333333" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Style>
+            </TabControl.ItemContainerStyle>
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -60,11 +69,12 @@
                         <TextBlock Text="*" Visibility="{Binding HasChanges,
                             Converter={StaticResource booleanToVisibilityConverter}}"/>
                         <Button Command="{Binding CloseDetailViewCommand}"
-                                VerticalContentAlignment="Top" Margin="2"
-                                Content="x" FontSize="20"/>
+                                Style="{StaticResource ChromelessButtonStyle}"
+                                VerticalContentAlignment="Top" Margin="2 0 2 2"
+                                Content="X" FontSize="20"/>
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
         </TabControl>
     </Grid>
-</Window>
+</Controls:MetroWindow>

@@ -1,4 +1,5 @@
 ﻿using FriendOrganizer.UI.ViewModel;
+using MahApps.Metro.Controls;
 using System.Windows;
 
 namespace FriendOrganizer.UI
@@ -7,7 +8,7 @@ namespace FriendOrganizer.UI
     /// Interaction logic for MainWindow.xaml
     /// The views constructor takes a ViewModel
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         private MainViewModel _viewModel;
         public MainWindow(MainViewModel viewModel)
